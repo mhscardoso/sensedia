@@ -2,17 +2,14 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 from .models import User
 
-def profile(request: HttpRequest):
-    context = {
-        'user': request.user
-    }
+@login_required(login_url='login')
+def index(request: HttpRequest):
+    return render(request, template_name='profile.html')
 
-    print(context['user'])
-
-    return render(request, template_name='profile.html', context=context)
 
 def signup(request: HttpRequest):
 
@@ -70,13 +67,10 @@ def signup(request: HttpRequest):
 def signin(request: HttpRequest):
 
     if request.method != 'POST':
-        print('cai aqui')
         return render(
             request,
             template_name='registration/login.html'
         )
-    
-
     
     
     email = request.POST['email']
@@ -105,5 +99,3 @@ def signout(request: HttpRequest):
 
     logout(request)
     return redirect('login')
-
-

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<form method="POST">
+    {% csrf_token %}
+
+    <input type="text" name="name"        id="name"        placeholder="Nome do Projeto">
+    <input type="text" name="description" id="description" placeholder="Descrição">
+    <input type="date" name="start_date"  id="start_date"  placeholder="Data Início">
+    <input type="date" name="end_date"    id="end_date"    placeholder="Data Fim">
+
+    <select name="user_id" id="user_id">
+        <option value="">-- Select --</option>
+
+        {% for user in users %}
+            <option value="{{ user.id }}">
+                {{ user.complete_name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">Criar novo Projeto</button>
+</form>
+
+
+{% endblock %}
