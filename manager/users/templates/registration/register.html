@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %} Sign Up | Projects {% endblock %}
+
+{% block content %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    <input type="text"     name="name"     id="name"  placeholder="Nome Completo">
+    <input type="email"    name="email"    id="email" placeholder="Email">
+    <input type="text"     name="cpf"      id="cpf"   placeholder="CPF">
+    <input type="date"     name="birth"    id="birth" placeholder="Data de Nascimento">
+    <input type="text"     name="phone"    id="phone" placeholder="Telefone">
+    
+    <input type="password" name="password"         id="pass"  placeholder="Senha">
+    <input type="password" name="password_confirm" id="passc" placeholder="Confirme sua Senha">
+
+    <input type="checkbox" name="use_term" id="check">
+    <label for="check">Aceito os Termos de Uso</label>
+
+    <button type="submit">Sign Up</button>
+</form>
+
+<p>
+    Já possui uma conta? Faça <a href="/login">Login</a>!
+</p>
+
+{% endblock %}

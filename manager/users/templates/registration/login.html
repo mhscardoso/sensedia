@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %} Sign In | Projects {% endblock %}
+
+{% block content %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    <input type="email"    name="email"    id="email" placeholder="Email">    
+    <input type="password" name="password" id="pass"  placeholder="Senha">
+
+    <button type="submit">Sign In</button>
+</form>
+
+{% endblock %}
