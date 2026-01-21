@@ -43,3 +43,10 @@ python manager/manager.py runserver
 ```
 
 que o servidor django abrirá na porta 8000.
+
+## Para editar tarefas de um Projeto
+
+No sistema existe uma tela com a descrição do projeto. Nela, é possível ver as tarefas associadas.
+
+Para modificar o status de uma tarefa
+basta clicar e arrastar para a coluna pertencente.
