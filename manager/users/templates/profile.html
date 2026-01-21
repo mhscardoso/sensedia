@@ -2,20 +2,135 @@
 
 {% block title %} Profile | Projects {% endblock %}
 
+{% block extra_css %}
+
+<style>
+
+	.project-card,
+	.task-card {
+		background-color: beige;
+		width: 250px;
+		margin: 25px;
+		padding: 15px;
+		border-radius: 15pt;
+	}
+	
+	.no-dec {
+		text-decoration: none;
+	}
+
+	.project-card h2,
+	.task-card h2 {
+		margin: 0 0 5px 0;
+	}
+
+	.project-card h5, 
+	.task-card h5 {
+		text-align: right;
+		margin-bottom: 0;
+	}
+
+	.task-card {
+		text-align: right;
+	}
+
+
+	.vision {
+		display: flex;
+        justify-content: space-between;
+        align-items: start;
+	}
+
+	.create-project {
+		display: inline-block;
+        align-items: right;
+        width: 30%;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        color: #ffffff; /* Text color */
+        background-color: #007bff; /* Primary background color */
+        border: none;
+        border-radius: 25px; /* Rounded corners */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions */
+        cursor: pointer;
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+
+</style>
+
+{% endblock %}
+
 {% block content %}
 
     {% if user.is_authenticated %}
-      <p> Olá, {{ user.username }} </p>
+		<h1> Olá, {{ user.complete_name }} </h1>
     {% endif %}
 
-<a href="/projects/create">
-  Criar um novo Projeto
-</a>
+	<hr>
+
+
+<div style="display: flex; justify-content: space-between;">
+	<a class="create-project" href="/projects/create">
+		  Criar um novo Projeto
+	</a>
+
+	<a class="create-project" href="/projects/all">
+		  Todos os Projetos
+	</a>
+</div>
 
 <br>
 
-<a href="/projects/">
-  Meus Projetos
-</a>
+<h1>Visão de Projetos</h1>
+<hr>
+
+<div class="vision">
+
+	<div class="projects">
+		{% for project in projects %}
+			<a class="no-dec" href="/projects/{{ project.id }}/">
+				<div class="project-card">
+					<h2>
+						{{ project.name }}
+					</h2>
+	
+					<h5>
+						{{ project.end_date }}
+					</h5>
+				</div>
+			</a>
+		{% endfor %}
+	</div>
+
+
+	<div class="tasks">
+		{% for item in items %}
+			<a class="no-dec" href="/projects/{{ item.project.id }}/">
+				<div class="task-card">
+					<h2>
+						{{ item.title }}
+					</h2>
+
+
+					{% if item.forecast is not None %}
+					<h5>
+						{{ item.forecast }}
+					</h5>
+					{% else %}
+					<h5>
+						Sem Data
+					</h5>
+					{% endif %}
+				</div>
+			</a>
+		{% endfor %}
+	</div>
+
+</div>
 
 {% endblock %}

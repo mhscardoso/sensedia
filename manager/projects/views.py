@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, date
 from django.http import HttpRequest
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -31,8 +32,22 @@ def create_project(request: HttpRequest):
 
     user_filter = User.objects.filter(id=user_id)
 
+    if len(name) >= 20:
+        messages.info(request, 'Nome do projeto deve ser menor que 20 caracteres')
+        return redirect('create_project')
+
     if not user_filter.exists():
         messages.info(request, "Usuário não Encontrado")
+        return redirect('create_project')
+    
+    date_start = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if date_start <= date.today():
+        messages.info(request, "Data de início deve ser maior que a atual")
+        return redirect('create_project')
+    
+    date_end = datetime.strptime(end_date, '%Y-%m-%d').date()
+    if date_end <= date_start:
+        messages.info(request, "Data de fim deve ser maior que a de início")
         return redirect('create_project')
     
     user: User = user_filter.first()
@@ -78,7 +93,7 @@ def user_projects(request: HttpRequest):
 
 
 
-@require_http_methods(["GET", "POST", "PATCH"])
+@require_http_methods(["GET", "POST", "PATCH", "DELETE"])
 @login_required(login_url='login')
 def project_details(request: HttpRequest, project_id: int):
     project = get_object_or_404(Project, id=project_id)
@@ -111,11 +126,16 @@ def project_details(request: HttpRequest, project_id: int):
         status      = request.POST['status']
         title       = request.POST['title']
         description = request.POST['description']
-        date        = request.POST['date']
+        forecast    = request.POST['date']
         user_id     = request.POST['user_id']
 
-        if date == "":
-            date = None
+        if forecast != "":
+            date_end = datetime.strptime(forecast, '%Y-%m-%d').date()
+            if date_end <= date.today():
+                messages.info(request, "Data de fim deve ser maior que a atual")
+                return redirect('project_detail', project_id=project_id)
+        else:
+            forecast = None
         
         if status not in [Status.PENDING, Status.WORKING, Status.DONE]:
             messages.info(request, 'Status não está na lista')
@@ -133,13 +153,14 @@ def project_details(request: HttpRequest, project_id: int):
             messages.info(request, 'Usuário responsável não definido')
             return redirect('project_detail', project_id=project_id)
         
+        
 
         user = get_object_or_404(User, id=user_id)
         
         item = Items.objects.create(
             title=title,
             description=description,
-            forecast=date,
+            forecast=forecast,
             owner=user,
             project=project,
             status=status,
@@ -173,6 +194,3 @@ def project_change_name(request: HttpRequest, project_id: int):
     project.save()
 
     return redirect('project_detail', project_id=project.id)
-
-    
-

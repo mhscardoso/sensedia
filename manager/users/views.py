@@ -1,14 +1,29 @@
+from datetime import datetime, date
 from django.shortcuts import render, redirect
 from django.http import HttpRequest
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
+
+from projects.models import Project
+from items.models import Items
 from .models import User
+from .utils import validate_cpf_schema
 
 @login_required(login_url='login')
 def index(request: HttpRequest):
-    return render(request, template_name='profile.html')
+    user = request.user
+
+    user_projects = Project.objects.filter(owner=user)
+    user_items = Items.objects.filter(owner=user)
+
+    context = {
+        'projects': user_projects,
+        'items': user_items,
+    }
+
+    return render(request, template_name='profile.html', context=context)
 
 
 def signup(request: HttpRequest):
@@ -46,9 +61,19 @@ def signup(request: HttpRequest):
         messages.info(request, 'Telefone já Cadastrado')
         return redirect('signup')
     
+    if not validate_cpf_schema(cpf):
+        messages.info(request, 'CPF Inválido')
+        return redirect('signup')
+    
+
+    date_birth = datetime.strptime(birth, '%Y-%m-%d').date()
+    if date_birth > date.today():
+        messages.info(request, "Data de nascimento deve ser menor que a data atual.")
+        return redirect('create_project')
+    
 
     user: User = User.objects.create_user(
-        username=complete_name,
+        username=email,
         complete_name=complete_name,
         email=email,
         password=password,

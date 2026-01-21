@@ -1,27 +1,148 @@
 {% extends 'base.html' %}
 
+{% block extra_css %}
+<style>
+    .input-container {
+        position: relative;
+        margin-bottom: 20px;
+        padding-top: 20px;
+        margin: auto;
+    }
+
+    .input-container input[type="text"],
+    .input-container input[type="date"],
+    .input-container select {
+        box-sizing: border-box;
+        background-color: transparent;
+        width: 80%;
+        padding: 15px 13px;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: border-color 0.2s ease-in-out;
+        margin-bottom: 0;
+    }
+
+
+    .input-container input[type="text"]:focus,
+    .input-container input[type="date"]:focus,
+    .input-container select:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .label-float {
+        position: absolute;
+        top: 0;
+        left: 13px;
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.6);
+        pointer-events: none;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .input-container input + .label-float,
+    .input-container select + .label-float,
+    .input-container input:not(:placeholder-shown) + .label-float 
+    .input-container select:not(:placeholder-shown) + .label-float 
+    {
+        transform: translateY(5px) scale(0.85);
+        color: #007bff;
+        background-color: #fff;
+        padding: 0 5px;
+    }
+
+    .beautiful-button {
+        margin-top: 30px;
+        display: inline-block;
+        align-items: center;
+        width: 80%;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        color: #ffffff; /* Text color */
+        background-color: #007bff; /* Primary background color */
+        border: none;
+        border-radius: 25px; /* Rounded corners */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions */
+        cursor: pointer;
+    }
+
+    .beautiful-button:hover {
+        background-color: #0056b3; /* Darker color on hover */
+        transform: translateY(-2px); /* Lift button slightly on hover */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    }
+
+    .beautiful-button:active {
+        transform: translateY(0); /* Push button down when clicked */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Original shadow when clicked */
+    }
+
+    .alert {
+        color: red;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+
 {% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+        {% if forloop.last %}
+        <div class="alert">
+            {{ message }}
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 
 
 <form method="POST">
     {% csrf_token %}
 
-    <input type="text" name="name"        id="name"        placeholder="Nome do Projeto">
-    <input type="text" name="description" id="description" placeholder="Descrição">
-    <input type="date" name="start_date"  id="start_date"  placeholder="Data Início">
-    <input type="date" name="end_date"    id="end_date"    placeholder="Data Fim">
+    <div class="input-container">
+        <input type="text" name="name" id="name" required>
+        <label for="name" class="label-float">Nome do Projeto</label>
+    </div>
 
-    <select name="user_id" id="user_id">
-        <option value="">-- Select --</option>
+    <div class="input-container">
+        <input type="text" name="description" id="description" required>
+        <label for="description" class="label-float">Descrição</label>
+    </div>
 
-        {% for user in users %}
-            <option value="{{ user.id }}">
-                {{ user.complete_name }}
-            </option>
-        {% endfor %}
-    </select>
+    <div class="input-container">
+        <input type="date" name="start_date" id="start_date" placeholder="DD-MM-YYYY">
+        <label for="start_date" class="label-float">Início</label>
+    </div>
 
-    <button type="submit">Criar novo Projeto</button>
+    <div class="input-container">
+        <input type="date" name="end_date" id="end_date" placeholder="DD-MM-YYYY">
+        <label for="end_date" class="label-float">Fim</label>
+    </div>
+
+
+    <div class="input-container">
+        <select name="user_id" id="user_id" required>
+            <option value="">-- Select --</option>
+
+            {% for user in users %}
+                <option value="{{ user.id }}">{{ user.complete_name }}</option>
+            {% endfor %}
+        </select>
+        <label for="user_id" class="label-float">Responsável</label>
+    </div>
+
+    <button 
+        type="submit"
+        class="beautiful-button"
+    >
+        Adicionar Projeto
+    </button>
 </form>
 
 

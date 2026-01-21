@@ -28,11 +28,11 @@
     }
 
     .container {
-        border: 2pt solid;
         border-radius: 10pt;
         width: 100%;
         height: auto;
         margin: 0 5pt 0 5pt;
+        background-color: #ffffff;
     }
 
     .no-items-p {
@@ -149,6 +149,11 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Original shadow when clicked */
     }
 
+    .alert {
+        color: red;
+        margin-bottom: 10px;
+    }
+
 </style>
 
 {% endblock %}
@@ -186,7 +191,7 @@
 {% if messages %}
     {% for message in messages %}
         {% if forloop.last %}
-        <div class="alert alert-info">
+        <div class="alert">
             {{ message }}
         </div>
         {% endif %}
@@ -256,19 +261,32 @@
 
                 {% for task in tasks_values %}
                     <div draggable="true" class="card" id="{{ task.id }}">
-                        <p>
-                            {{ task.title }}
-                        </p>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end">
+                            <h3>
+                                {{ task.title }}
+                            </h3>
 
-                        <p>
-                            {{ task.description }}
-                        </p>
+                            <button
+                                style="border-radius: 15pt; background-color: red; border: none; color: var(--light); width:15%; height: 30px;"
+                                onclick="deleteTask('{{ task.id }}')"
+                            >
+                                X
+                            </button>
+                        </div>
                         
+
+                        <h6>
+                            {{ task.description }}
+                        </h6>
+                        
+
+                        {% if task.forecast is not None %}
                         <p>
                             {{ task.forecast }}
                         </p>
+                        {% endif %}
 
-                        <p>
+                        <p style="font-size: smaller;">
                             {{ task.owner.complete_name }}
                         </p>
                     </div>
@@ -280,6 +298,7 @@
 
     <input type="hidden" id="change-cards-form" value="{{ csrf_token }}">
     <input type="hidden" id="change-project-name" value="{{ csrf_token }}">
+    <input type="hidden" id="delete-task" value="{{ csrf_token }}">
 
 </div>
 
@@ -343,6 +362,28 @@ function updateProjectName(projectName, projectId) {
     })
 
     toggleProjectName();
+}
+
+
+
+function deleteTask(taskId) {
+    const csrfToken = document.getElementById('delete-task').value;
+
+    fetch(`/items/${taskId}/delete/`, {
+        method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Erro ao salvar')
+        window.location.reload()
+    })
+    .catch(err => {
+        console.error(err)
+        alert('Erro ao atualizar. Recarregue a página.')
+    })
 }
 
 

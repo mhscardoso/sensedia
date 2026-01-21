@@ -28,3 +28,15 @@ def update_card(request, item_id):
     card.save()
 
     return redirect('project_detail', project_id=project.id)
+
+
+
+@require_http_methods(["DELETE"])
+@login_required(login_url='login')
+def delete_card(request, item_id):
+    card = get_object_or_404(Items, id=item_id)
+    project: Project = card.project
+
+    card.delete()
+
+    return redirect('project_detail', project_id=project.id)
