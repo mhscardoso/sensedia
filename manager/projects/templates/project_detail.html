@@ -156,7 +156,32 @@
 
 {% block content %}
 
-<h1>{{ project.name }}</h1>
+<div style="display: flex; align-items: flex-center; margin-bottom: 10px;">
+    <h1 class="" id="project_name_text">{{ project.name }}</h1>
+    <input type="text" name="project_name_field" id="project_name_field"
+        style="width: 30%; font-size: xx-large; font-weight: bold; background-color: transparent; border: none; margin-bottom: 30px; margin-top: 30px;"
+        class="hidden" value="{{ project.name }}"
+        onblur="updateProjectName('{{ project.name }}', '{{ project.id }}')"
+    >
+    
+    <button 
+        style="margin-left: 15px; background-color: transparent; border: none;"
+        onclick="toggleProjectName()"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+            <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.65-.65Z" />
+            <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
+        </svg>
+        <p style="visibility: hidden; margin-top: -35px; padding: 0;">edit</p>
+    </button>
+</div>
+
+
+<div>
+    <p>
+        Projeto de {{ project.owner.complete_name }}
+    </p>
+</div>
 
 {% if messages %}
     {% for message in messages %}
@@ -172,7 +197,7 @@
 
 
     {% for id, status, task_name, tasks_values in tasks %}
-        <div class="container">
+        <div class="container" id="{{ status }}" name="{{ status }}">
             <div class="container-title">
                 <p>{{ task_name }}</p>
                 <button 
@@ -230,7 +255,7 @@
             {% else %}
 
                 {% for task in tasks_values %}
-                    <div class="card">
+                    <div draggable="true" class="card" id="{{ task.id }}">
                         <p>
                             {{ task.title }}
                         </p>
@@ -253,6 +278,9 @@
         </div>
     {% endfor %}
 
+    <input type="hidden" id="change-cards-form" value="{{ csrf_token }}">
+    <input type="hidden" id="change-project-name" value="{{ csrf_token }}">
+
 </div>
 
 
@@ -266,6 +294,111 @@
 function toggleForm(status) {
     const form = document.getElementById(`task-form-${status}`);
     form.classList.toggle("hidden");
+}
+
+function toggleProjectName() {
+    const projectName = document.getElementById('project_name_text');
+    const projectNameField = document.getElementById('project_name_field');
+
+    projectName.classList.toggle("hidden");
+    projectNameField.classList.toggle("hidden");
+
+    const isHidden = projectNameField.classList.contains('hidden');
+
+    if (!isHidden) {
+        projectNameField.focus();
+        return;
+    }
+}
+
+
+function updateProjectName(projectName, projectId) {
+    const csrfToken = document.getElementById('change-project-name').value;
+
+    const projectNameField = document.getElementById('project_name_field');
+    const nameValue = projectNameField.value;
+
+    if (projectName === nameValue) {
+        toggleProjectName();
+        return;
+    }
+
+    fetch(`/projects/${projectId}/name/`, {
+        method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                project_name: nameValue
+            })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Erro ao salvar')
+        window.location.reload()
+    })
+    .catch(err => {
+        console.error(err)
+        alert('Erro ao atualizar. Recarregue a página.')
+    })
+
+    toggleProjectName();
+}
+
+
+let draggedItem = null;
+
+document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+        draggedItem = card
+        card.classList.add('dragging')
+    })
+
+    card.addEventListener('dragend', e => {
+        card.classList.remove('dragging')
+        draggedItem = null
+    })
+})
+
+
+document.querySelectorAll('.container').forEach(column => {
+    column.addEventListener('dragover', e => {
+        e.preventDefault()
+    })
+
+    column.addEventListener('drop', e => {
+        e.preventDefault()
+
+        if (!draggedItem) return
+
+        column.appendChild(draggedItem)
+
+        sendUpdate(draggedItem.id, column.id)
+    })
+})
+
+
+function sendUpdate(card, column) {
+    const csrfToken = document.getElementById('change-cards-form').value
+
+    fetch(`/items/${card}/`, {
+        method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                status: column
+            })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Erro ao salvar')
+        window.location.reload()
+    })
+    .catch(err => {
+        console.error(err)
+        alert('Erro ao atualizar. Recarregue a página.')
+    })
 }
 
 </script>

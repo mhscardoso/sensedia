@@ -1,7 +1,9 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpRequest, Http404
+import json
+from django.http import HttpRequest
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.shortcuts import render, redirect, get_object_or_404
 
 from users.models import User
 from items.models import Items, Status
@@ -76,11 +78,12 @@ def user_projects(request: HttpRequest):
 
 
 
+@require_http_methods(["GET", "POST", "PATCH"])
 @login_required(login_url='login')
 def project_details(request: HttpRequest, project_id: int):
     project = get_object_or_404(Project, id=project_id)
     
-    if request.method != 'POST':
+    if request.method not in ['POST']:
         tasks = Items.objects.filter(project=project)
         users = User.objects.values(
             'id', 'complete_name', 'username'
@@ -146,5 +149,30 @@ def project_details(request: HttpRequest, project_id: int):
 
         return redirect('project_detail', project_id=project_id)
     
+
+
+    if request.method == 'PUT':
+        return redirect('project_detail', project_id=project_id)
+
+
+
+@require_http_methods(["PATCH"])
+@login_required(login_url='login')
+def project_change_name(request: HttpRequest, project_id: int):
+    project = get_object_or_404(Project, id=project_id)
+
+    data = json.loads(request.body)
+
+    project_name = data['project_name']
+
+    if len(project_name) >= 20:
+        messages.info(request, 'Nome deve ter menos de 20 caracteres')
+        return redirect('project_detail', project_id=project_id)
+
+    project.name = project_name
+    project.save()
+
+    return redirect('project_detail', project_id=project.id)
+
     
 
