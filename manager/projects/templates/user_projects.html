@@ -6,7 +6,7 @@
 <ul>
     {% for project in projects %}
         <li>
-            {{ project.name }}
+            <a href="/projects/{{ project.id }}">{{ project.name }}</a>
         </li>
     {% endfor %}
 </ul>

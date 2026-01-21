@@ -5,7 +5,7 @@
 {% block content %}
 
     {% if user.is_authenticated %}
-      <p> Bem-vindo {{ user.username }} </p>
+      <p> Olá, {{ user.username }} </p>
     {% endif %}
 
 <a href="/projects/create">

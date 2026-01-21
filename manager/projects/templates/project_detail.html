@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+
+<style>
+
+    .main-div {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .container-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .container-title p {
+        margin: 10px;
+    }
+
+    .add-button {
+        background-color: aqua;
+        border: none;
+        font-size: large;
+        margin-right: 5px;
+        border-radius: 10pt;
+    }
+
+    .container {
+        border: 2pt solid;
+        border-radius: 10pt;
+        width: 100%;
+        height: auto;
+        margin: 0 5pt 0 5pt;
+    }
+
+    .no-items-p {
+        text-align: center;
+        align-items: center;
+        color: gray;
+        font-size: small;
+    }
+
+    .container.drag-over {
+        background: #dbeafe;
+    }
+
+    .card {
+        background: #e5e7eb;
+        padding: 10px;
+        margin: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        cursor: grab;
+    }
+
+    .card:active {
+        cursor: grabbing;
+    }
+
+    .task-form {
+        margin-bottom: 15px;
+        align-items: center;
+        margin: auto;
+        padding-left: 20px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .input-container {
+        position: relative;
+        margin-bottom: 20px;
+        padding-top: 20px;
+    }
+
+    .input-container input[type="text"],
+    .input-container input[type="date"],
+    .input-container select {
+        box-sizing: border-box;
+        background-color: transparent;
+        width: 80%;
+        padding: 15px 13px;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: border-color 0.2s ease-in-out;
+        margin-bottom: 0;
+    }
+
+
+    .input-container input[type="text"]:focus,
+    .input-container input[type="date"]:focus,
+    .input-container select:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .label-float {
+        position: absolute;
+        top: 0;
+        left: 13px;
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.6);
+        pointer-events: none;
+        transform: translateY(35px);
+        transition: all 0.2s ease-in-out;
+    }
+
+    .input-container input + .label-float,
+    .input-container select + .label-float,
+    .input-container input:not(:placeholder-shown) + .label-float 
+    .input-container select:not(:placeholder-shown) + .label-float 
+    {
+        transform: translateY(5px) scale(0.85);
+        color: #007bff;
+        background-color: #fff;
+        padding: 0 5px;
+    }
+
+
+    .beautiful-button {
+        display: inline-block;
+        align-items: center;
+        width: 80%;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        color: #ffffff; /* Text color */
+        background-color: #007bff; /* Primary background color */
+        border: none;
+        border-radius: 25px; /* Rounded corners */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions */
+        cursor: pointer;
+    }
+
+    .beautiful-button:hover {
+        background-color: #0056b3; /* Darker color on hover */
+        transform: translateY(-2px); /* Lift button slightly on hover */
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    }
+
+    .beautiful-button:active {
+        transform: translateY(0); /* Push button down when clicked */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Original shadow when clicked */
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<h1>{{ project.name }}</h1>
+
+{% if messages %}
+    {% for message in messages %}
+        {% if forloop.last %}
+        <div class="alert alert-info">
+            {{ message }}
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="main-div">
+
+
+    {% for id, status, task_name, tasks_values in tasks %}
+        <div class="container">
+            <div class="container-title">
+                <p>{{ task_name }}</p>
+                <button 
+                    class="add-button" 
+                    alt="Adicionar Tarefa" 
+                    id="add_task{{ id }}"
+                    onclick="toggleForm('{{ id }}')"
+                >
+                    +
+                </button>
+            </div>
+
+            <form method="POST" id="task-form-{{ id }}" name="task-form-{{ id }}"  class="task-form hidden">
+                {% csrf_token %}
+                <div class="input-container">
+                    <input type="text" name="title" id="title" required>
+                    <label for="title" class="label-float">Nome</label>
+                </div>
+
+                <div class="input-container">
+                    <input type="text" name="description" id="description" required>
+                    <label for="description" class="label-float">Descrição</label>
+                </div>
+
+                <div class="input-container">
+                    <input type="date" name="date" id="date" placeholder="DD-MM-YYYY">
+                    <label for="date" class="label-float">Previsão</label>
+                </div>
+
+                <input type="hidden" name="status" id="status" value="{{ status }}">
+
+
+                <div class="input-container">
+                    <select name="user_id" id="user_id" required>
+                        <option value="">-- Select --</option>
+    
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.complete_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="user_id" class="label-float">Responsável</label>
+                </div>
+
+                <button 
+                    type="submit"
+                    class="beautiful-button"
+                    value="task-form-{{ id }}"
+                >
+                    Adicionar
+                </button>
+            </form>
+
+            {% if tasks_values|length == 0 %}
+                <p class="no-items-p">Sem Itens</p>
+            {% else %}
+
+                {% for task in tasks_values %}
+                    <div class="card">
+                        <p>
+                            {{ task.title }}
+                        </p>
+
+                        <p>
+                            {{ task.description }}
+                        </p>
+                        
+                        <p>
+                            {{ task.forecast }}
+                        </p>
+
+                        <p>
+                            {{ task.owner.complete_name }}
+                        </p>
+                    </div>
+                {% endfor %}
+
+            {% endif %}
+        </div>
+    {% endfor %}
+
+</div>
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+function toggleForm(status) {
+    const form = document.getElementById(`task-form-${status}`);
+    form.classList.toggle("hidden");
+}
+
+</script>
+
+{% endblock %}
