@@ -7,4 +7,4 @@ class Project(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
 
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_projects')

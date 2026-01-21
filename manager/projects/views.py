@@ -2,6 +2,7 @@ import json
 from datetime import datetime, date
 from django.http import HttpRequest
 from django.contrib import messages
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render, redirect, get_object_or_404
@@ -108,6 +109,11 @@ def project_details(request: HttpRequest, project_id: int):
         working_tasks = tasks.filter(status=Status.WORKING)
         done_tasks    = tasks.filter(status=Status.DONE)
 
+        all_users = User.objects.filter(
+            Q(owned_projects=project) |
+            Q(items__project=project)
+        ).distinct()
+
         context = { 
             'project': project,
             'tasks': [
@@ -117,6 +123,7 @@ def project_details(request: HttpRequest, project_id: int):
             ],
 
             'users': users,
+            'related_users': all_users,
         }
 
         return render(request, template_name='project_detail.html', context=context)

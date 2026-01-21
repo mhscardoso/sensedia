@@ -4,22 +4,21 @@
 
 {% block extra_css %}
 <style>
-    form {
-        margin-left: 120px;
-    }
 
-    .input-container {
+.input-container {
         position: relative;
         margin-bottom: 20px;
         padding-top: 20px;
-        margin: auto;
+        margin: 30px auto;
+        display: block;
+        width: 50%;
     }
 
     .input-container input,
     .input-container select {
         box-sizing: border-box;
         background-color: transparent;
-        width: 80%;
+        width: 100%;
         padding: 15px 13px;
         border-radius: 10px;
         font-size: 16px;
@@ -59,7 +58,6 @@
         margin-top: 30px;
         display: inline-block;
         align-items: center;
-        width: 80%;
         padding: 10px 20px;
         font-size: 16px;
         font-weight: bold;
@@ -72,6 +70,9 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
         transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth transitions */
         cursor: pointer;
+        margin: 30px auto;
+        display: block;
+        width: 40%;
     }
 
     .beautiful-button:hover {
@@ -83,6 +84,15 @@
     .beautiful-button:active {
         transform: translateY(0); /* Push button down when clicked */
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Original shadow when clicked */
+    }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 30px auto;
+        width: 50%;
+        gap: 8px;
     }
 
     .alert {
@@ -142,10 +152,10 @@
         <label for="password_confirm" class="label-float">Confirme a Senha</label>
     </div>
     
-    <input 
-        style="margin-top: 20px;"
-        type="checkbox" name="use_term" id="check">
-    <label for="check">Aceito os Termos de Uso</label>
+    <div class="checkbox-wrapper">
+        <input type="checkbox" name="use_term" id="check">
+        <label for="check">Aceito os Termos de Uso</label>
+    </div>
 
     <button 
         type="submit"
@@ -178,6 +188,21 @@
         value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2')
         
         cpfInput.value = value
+    })
+
+
+
+    const phoneInput = document.getElementById('phone')
+    
+    phoneInput.addEventListener('input', () => {
+        let value = phoneInput.value.replace(/\D/g, '')
+
+        if (value.length > 11) value = value.slice(0, 11)
+
+        value = value.replace(/(\d{2})(\d)/, '($1) $2')
+        value = value.replace(/(\d{5})(\d{4})$/, '$1-$2')
+
+        phoneInput.value = value
     })
 
 </script>

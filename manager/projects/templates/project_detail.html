@@ -7,6 +7,7 @@
     .main-div {
         display: flex;
         align-items: flex-start;
+        width: 100%;
     }
 
     .container-title {
@@ -33,6 +34,20 @@
         height: auto;
         margin: 0 5pt 0 5pt;
         background-color: #ffffff;
+    }
+
+    .container-users {
+        border-radius: 10pt;
+        width: 80%;
+        height: auto;
+        margin: 0 5pt 0 5pt;
+        background-color: #ffffff;
+        padding: 0 10px 0 10px;
+        display: block;
+    }
+
+    .container-users div {
+        padding: 5px 10px 5px 10px;
     }
 
     .no-items-p {
@@ -188,6 +203,14 @@
     </p>
 </div>
 
+<div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: bold;">
+    <div>Data de Início: {{ project.start_date }}</div>
+
+    <hr>
+
+    <div>Data de Finalização: {{ project.end_date }}</div>
+</div>
+
 {% if messages %}
     {% for message in messages %}
         {% if forloop.last %}
@@ -199,8 +222,6 @@
 {% endif %}
 
 <div class="main-div">
-
-
     {% for id, status, task_name, tasks_values in tasks %}
         <div class="container" id="{{ status }}" name="{{ status }}">
             <div class="container-title">
@@ -295,6 +316,17 @@
             {% endif %}
         </div>
     {% endfor %}
+
+    <div class="container-users">
+        <div class="container-title">
+            <p style="text-align: center;">Usuários Envolvidos</p>
+        </div>
+        {% for user in related_users %}
+            <div style="background-color: var(--gray); font-size: small; margin-bottom: 10px; border-radius: 10pt; color: var(--light);">
+                {{ user.complete_name }}
+            </div>
+        {% endfor %}
+    </div>
 
     <input type="hidden" id="change-cards-form" value="{{ csrf_token }}">
     <input type="hidden" id="change-project-name" value="{{ csrf_token }}">

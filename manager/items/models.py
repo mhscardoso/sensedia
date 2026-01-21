@@ -21,5 +21,5 @@ class Items(models.Model):
 
     forecast = models.DateField(null=True)
 
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='items')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='items')
