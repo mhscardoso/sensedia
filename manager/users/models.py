@@ -9,5 +9,5 @@ class User(AbstractUser):
         max_length=14, unique=True,
         validators=[validate_cpf],
     )
-    phone = models.CharField(max_length=11, unique=True)
+    phone = models.CharField(unique=True)
     birth_date = models.DateField()
